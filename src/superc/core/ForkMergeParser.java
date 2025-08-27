@@ -98,7 +98,7 @@ public class ForkMergeParser {
   final private static int STARTSTATE = 0;
 
   /** Turn new error handling on. */
-  private boolean newErrorHandling = false;
+  private static boolean newErrorHandling = false;
 
   /** Save the disjunction of invalid configurations. */
   private boolean saveErrorCond = false;
@@ -269,7 +269,7 @@ public class ForkMergeParser {
    * merge with others instead of being dropped immediately on parser
    * error.
    */
-  public void setNewErrorHandling(boolean b) {
+  public static void setNewErrorHandling(boolean b) {
     newErrorHandling = b;
   }
 

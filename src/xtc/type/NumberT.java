@@ -383,4 +383,8 @@ public abstract class NumberT extends Type {
     return toString();
   }
 
+  public void printType(TypeString t) {
+    t.setCore(toString());
+  }
+  
 }

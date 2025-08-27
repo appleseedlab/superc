@@ -1,0 +1,5 @@
+APACHE bbeb0516cf0.c
+Macros:
+	APR_FILES_AS_SOCKETS
+[-UAPR_FILES_AS_SOCKETS ]
+File Failed

@@ -11,11 +11,11 @@ typedef uint64_t u64;
 #define BITS_PER_LONG 32
 #endif /* CONFIG_64BIT */
 
-#define NSEC_PER_SEC1000000000L
+#define NSEC_PER_SEC 1000000000L
 
-#define KTIME_MAX((s64)~((u64)1 << 63))
+#define KTIME_MAX ((s64)~((u64)1 << 63))
 #if (BITS_PER_LONG == 64)
-#define KTIME_SEC_MAX(KTIME_MAX / NSEC_PER_SEC)
+#define KTIME_SEC_MAX (KTIME_MAX / NSEC_PER_SEC)
 #else
 #define KTIME_SEC_MAXLONG_MAX
 #endif

@@ -45,7 +45,7 @@ public class Limits {
   // --------------------------------------------------------------------------
 
   /** The name and version of the operating system. */
-  public static final String OS = "Linux 5.4.0-65-generic";
+  public static final String OS = "Linux 5.4.0-144-generic";
 
   /** The processor architecture. */
   public static final String ARCH = "amd64";

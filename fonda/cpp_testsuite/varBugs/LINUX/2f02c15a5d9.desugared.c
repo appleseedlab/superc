@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -9,8 +10,8 @@ void __static_initializer_default();
 
 extern const bool __static_condition_default_11;
 extern const bool __static_condition_default_5;
-extern const bool __static_condition_default_1;
 extern const bool __static_condition_default_4;
+extern const bool __static_condition_default_1;
 extern const bool __static_condition_default_10;
 extern const bool __static_condition_default_3;
 void __static_initializer_default() {
@@ -32,14 +33,14 @@ int  (__ssb_extif_gpio_in_0) () {
 
 if (__static_condition_default_1) {
 
-{
+{// L3
 {
 
 
 
 return 0 ;// L4
 }
-}
+}// L5
 
 
 }
@@ -48,7 +49,7 @@ int  (__bcm47xx_gpio_get_value_2) () {
 
 if (__static_condition_default_3) {
 
-{
+{// L10
 {
 
 
@@ -60,7 +61,7 @@ if (__static_condition_default_5) {
 __static_type_error("invalid type found in return expression");
 }
 }
-}
+}// L12
 
 
 }
@@ -69,14 +70,14 @@ int  (__main_8) (int  __argc_6, char  * (* (__argv_7))) {
 
 if (__static_condition_default_10) {
 
-{
+{// L16
 {
 
 
 
 return 0 ;// L20
 }
-}
+}// L21
 
 
 }
@@ -85,7 +86,7 @@ int  (__main_9) (int  __argc_6, char  * (* (__argv_7))) {
 
 if (__static_condition_default_11) {
 
-{
+{// L16
 {
 
 
@@ -93,7 +94,7 @@ if (__static_condition_default_11) {
  __bcm47xx_gpio_get_value_2 ( ) ; // L18
 return 0 ;// L20
 }
-}
+}// L21
 
 
 }

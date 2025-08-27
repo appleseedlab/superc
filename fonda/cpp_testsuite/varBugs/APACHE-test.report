@@ -1,0 +1,15 @@
+APACHE test.c
+Macros:
+	XX
+	YY
+	ZZ
+[-UXX -UYY -UZZ ]
+[-DXX=1 -UYY -UZZ ]
+[-UXX -DYY=1 -UZZ ]
+[-DXX=1 -DYY=1 -UZZ ]
+[-UXX -UYY -DZZ=1 ]
+[-DXX=1 -UYY -DZZ=1 ]
+[-UXX -DYY=1 -DZZ=1 ]
+[-DXX=1 -DYY=1 -DZZ=1 ]
+[-UXX -UYY -UZZ ]
+File Failed

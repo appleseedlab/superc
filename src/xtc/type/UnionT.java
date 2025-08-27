@@ -92,4 +92,8 @@ public class UnionT extends StructOrUnionT {
   public String printType() {
     return "union " + name;
   }
+
+  public void printType(TypeString t) {
+    t.setCore("union " + name);
+  }
 }

@@ -5,6 +5,9 @@ allTests.out
 *.Log
 *.o
 *.pyc
+*.plist
 /fonda/cpp_testsuite/desugarer/masterTypeCheck/binary
 /fonda/cpp_testsuite/desugarer/masterTypeCheck/unary
 /fonda/cpp_testsuite/desugarer/masterTypeCheck/other
+*.desugared.c
+*.desugaredCondHeader.c

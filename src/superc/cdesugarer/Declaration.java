@@ -101,11 +101,12 @@ class Declaration {
   }
 
   public String printType() {
-    return String.format("%s %s", typespecifier.toString(), declarator.printType());
+    return getType().printTypeNameless();
+    //return String.format("%s %s", typespecifier.toString(), declarator.printType());
   }
     
     public String printType(String x) {
-	return String.format("%s %s:%s", typespecifier.toString(), x, declarator.printType());
+      return String.format("%s %s:%s", typespecifier.toString(), x, declarator.printType());
     }
   
   public String toString() {
@@ -128,11 +129,19 @@ class Declaration {
          !declarator.isFunctionDeclarator() &&
          !declarator.isPointerDeclarator() &&
          !declarator.isPointerAbstractDeclarator() &&
+         !declarator.isQualifiedPointerDeclarator() &&
+         !declarator.isQualifiedPointerAbstractDeclarator() &&
          !declarator.isEmptyDeclarator()) ||
         //if the left is inline, right must be a function
         (typespecifier.hasInline() && !declarator.isFunctionDeclarator()))
       return true;
     return false;
+  }
+
+  public boolean isNonPointerForwardRef() {
+    Type t = typespecifier.getType();
+    return ((t.isStruct() || t.isUnion()) && ((StructOrUnionT)t).getName().startsWith("__forward_tag_reference"))
+      && !(declarator.isPointerDeclarator() || declarator.isQualifiedPointerDeclarator()) ;
   }
 }
 

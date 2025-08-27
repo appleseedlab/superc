@@ -108,4 +108,8 @@ public class InternalT extends Type {
   public String printType() {
     return name;
   }
+
+    public void printType(TypeString t) {
+    t.addToFront(name);
+  }
 }

@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -7,44 +8,44 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_238;
-extern const bool __static_condition_default_260;
-extern const bool __static_condition_default_262;
 extern const bool __static_condition_default_273;
-extern const bool __static_condition_default_239;
-extern const bool __static_condition_default_255;
-extern const bool __static_condition_default_226;
-extern const bool __static_condition_default_241;
 extern const bool __static_condition_default_259;
-extern const bool __static_condition_default_267;
-extern const bool __static_condition_default_243;
-extern const bool __static_condition_default_254;
-extern const bool __static_condition_default_210;
-extern const bool __static_condition_default_240;
-extern const bool __static_condition_default_223;
-extern const bool __static_condition_default_266;
-extern const bool __static_condition_default_245;
-extern const bool __static_condition_default_253;
-extern const bool __static_condition_default_261;
-extern const bool __static_condition_default_250;
-extern const bool __static_condition_default_205;
-extern const bool __static_condition_default_242;
-extern const bool __static_condition_default_258;
-extern const bool __static_condition_default_265;
-extern const bool __static_condition_default_206;
-extern const bool __static_condition_default_244;
-extern const bool __static_condition_default_270;
 extern const bool __static_condition_default_271;
-extern const bool __static_condition_default_263;
-extern const bool __static_condition_default_190;
-extern const bool __static_condition_default_272;
-extern const bool __static_condition_default_28;
-extern const bool __static_condition_default_19;
-extern const bool __static_condition_default_230;
+extern const bool __static_condition_default_210;
 extern const bool __static_condition_default_269;
-extern const bool __static_condition_default_246;
-extern const bool __static_condition_default_197;
+extern const bool __static_condition_default_241;
+extern const bool __static_condition_default_265;
+extern const bool __static_condition_default_190;
+extern const bool __static_condition_default_258;
 extern const bool __static_condition_default_264;
+extern const bool __static_condition_default_197;
+extern const bool __static_condition_default_238;
+extern const bool __static_condition_default_272;
+extern const bool __static_condition_default_205;
+extern const bool __static_condition_default_243;
+extern const bool __static_condition_default_206;
+extern const bool __static_condition_default_242;
+extern const bool __static_condition_default_240;
+extern const bool __static_condition_default_246;
+extern const bool __static_condition_default_255;
+extern const bool __static_condition_default_262;
+extern const bool __static_condition_default_263;
+extern const bool __static_condition_default_244;
+extern const bool __static_condition_default_28;
+extern const bool __static_condition_default_253;
+extern const bool __static_condition_default_250;
+extern const bool __static_condition_default_19;
+extern const bool __static_condition_default_245;
+extern const bool __static_condition_default_266;
+extern const bool __static_condition_default_223;
+extern const bool __static_condition_default_260;
+extern const bool __static_condition_default_226;
+extern const bool __static_condition_default_261;
+extern const bool __static_condition_default_270;
+extern const bool __static_condition_default_239;
+extern const bool __static_condition_default_254;
+extern const bool __static_condition_default_230;
+extern const bool __static_condition_default_267;
 void __static_initializer_default() {
 __static_renaming("____assert_fail_4", "__assert_fail");
 __static_renaming("____assert_perror_fail_9", "__assert_perror_fail");
@@ -157,8 +158,7 @@ __static_condition_renaming("__static_condition_default_271", "!(defined CONFIG_
 __static_condition_renaming("__static_condition_default_272", "(defined CONFIG_PROC_PAGE_MONITOR)");
 __static_condition_renaming("__static_condition_default_273", "(defined CONFIG_DISCONTIGMEM) && (defined __CORRECT_ISO_CPP_STRING_H_PROTO)");
 
-if (__static_condition_default_273)
-{
+if (__static_condition_default_273) {
 __static_parse_error("Unable to parse");
 }
 };
@@ -255,7 +255,7 @@ int  (__pfn_to_nid_237) (unsigned long  __pfn_235) {
 
 if (__static_condition_default_238) {
 
-{
+{// L14
 {
 
 
@@ -288,7 +288,7 @@ __static_type_error("type error") ; // L19:L91
 }
 return ( int   )  __r_236  ;// L21
 }
-}
+}// L22
 
 
 }
@@ -297,7 +297,7 @@ int  (__pfn_valid_249) (int  __pfn_247) {
 
 if (__static_condition_default_250) {
 
-{
+{// L25
 {
 
 
@@ -306,7 +306,7 @@ int  __nid_248=  __pfn_to_nid_237  ( __pfn_247 );// L26
 
 return (  __nid_248  >= 0 ) ;// L28
 }
-}
+}// L29
 
 
 }
@@ -315,7 +315,7 @@ int  (__kpageflags_read_252) () {
 
 if (__static_condition_default_253) {
 
-{
+{// L38
 {
 
 
@@ -325,7 +325,7 @@ unsigned int  __pfn_251= 0;// L39
 for (  ;  __pfn_251  <  __max_pfn_234  ;  __pfn_251  ++ )// L41
 {
 
-{
+{// L41
 {
 
 
@@ -343,11 +343,11 @@ if (  __pfn_valid_249  ( __pfn_251 ) )// L42
 }
 }
 }
-}
+}// L44
 }
 return 0 ;// L46
 }
-}
+}// L47
 
 
 }
@@ -357,35 +357,35 @@ void  (__setup_bootmem_256) (void  ) {
 {
 if (__static_condition_default_258) {
 
-{
+{// L51
 {
 
 
 
 }
-}
+}// L55
 
 
 }
 
 if (__static_condition_default_259) {
 
-{
+{// L51
 {
 
 
 
 if (__static_condition_default_260) {
- __memset_32  ( __pfnnid_map_231 ,0xff,sizeof(unsigned char[1])) ; // L53
+ __memset_32  ( __pfnnid_map_231 ,0xff,sizeof((  __pfnnid_map_231  ))) ; // L53
 }
 if (__static_condition_default_261) {
- __memset_33  ( __pfnnid_map_231 ,0xff,sizeof(unsigned char[1])) ; // L53
+ __memset_33  ( __pfnnid_map_231 ,0xff,sizeof((  __pfnnid_map_231  ))) ; // L53
 }
 if (__static_condition_default_262) {
 __static_type_error("type error") ; // L53
 }
 }
-}
+}// L55
 
 
 }
@@ -396,35 +396,35 @@ void  (__setup_bootmem_257) (void  ) {
 {
 if (__static_condition_default_263) {
 
-{
+{// L51
 {
 
 
 
 }
-}
+}// L55
 
 
 }
 
 if (__static_condition_default_264) {
 
-{
+{// L51
 {
 
 
 
 if (__static_condition_default_265) {
- __memset_32  ( __pfnnid_map_231 ,0xff,sizeof(unsigned char[1])) ; // L53
+ __memset_32  ( __pfnnid_map_231 ,0xff,sizeof((  __pfnnid_map_231  ))) ; // L53
 }
 if (__static_condition_default_266) {
- __memset_33  ( __pfnnid_map_231 ,0xff,sizeof(unsigned char[1])) ; // L53
+ __memset_33  ( __pfnnid_map_231 ,0xff,sizeof((  __pfnnid_map_231  ))) ; // L53
 }
 if (__static_condition_default_267) {
 __static_type_error("type error") ; // L53
 }
 }
-}
+}// L55
 
 
 }
@@ -432,7 +432,7 @@ __static_type_error("type error") ; // L53
 }}
 int  (__main_268) () {
 
-{
+{// L58
 {
 
 
@@ -453,7 +453,7 @@ if (__static_condition_default_272) {
 return 0 ;// L63
 }
 }
-}
+}// L64
 
 
 }

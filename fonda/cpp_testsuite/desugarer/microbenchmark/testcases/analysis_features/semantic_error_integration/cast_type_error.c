@@ -1,6 +1,6 @@
 int x
 #ifdef A
-()
+() { return 2;}
 #endif
   ;
 

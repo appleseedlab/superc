@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -7,19 +8,19 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_28;
-extern const bool __static_condition_default_23;
-extern const bool __static_condition_default_27;
-extern const bool __static_condition_default_20;
-extern const bool __static_condition_default_24;
-extern const bool __static_condition_default_29;
 extern const bool __static_condition_default_22;
-extern const bool __static_condition_default_16;
-extern const bool __static_condition_default_31;
-extern const bool __static_condition_default_26;
+extern const bool __static_condition_default_27;
 extern const bool __static_condition_default_17;
-extern const bool __static_condition_default_21;
+extern const bool __static_condition_default_29;
+extern const bool __static_condition_default_26;
+extern const bool __static_condition_default_20;
+extern const bool __static_condition_default_23;
+extern const bool __static_condition_default_24;
+extern const bool __static_condition_default_28;
 extern const bool __static_condition_default_32;
+extern const bool __static_condition_default_16;
+extern const bool __static_condition_default_21;
+extern const bool __static_condition_default_31;
 void __static_initializer_default() {
 __static_renaming("____assert_fail_4", "__assert_fail");
 __static_renaming("____assert_perror_fail_9", "__assert_perror_fail");
@@ -55,14 +56,14 @@ int  (__nondet_14) () {
 
 if (__static_condition_default_16) {
 
-{
+{// L4
 {
 
 
 
 return 42 ;// L4
 }
-}
+}// L4
 
 
 }
@@ -71,14 +72,14 @@ int  (__nondet_15) () {
 
 if (__static_condition_default_17) {
 
-{
+{// L4
 {
 
 
 
 return 42 ;// L4
 }
-}
+}// L4
 
 
 }
@@ -88,14 +89,14 @@ _Bool  (__vlan_hwaccel_do_receive_18) () {
 {
 if (__static_condition_default_20) {
 
-{
+{// L8
 {
 
 
 
 return 1 ;// L10
 }
-}
+}// L11
 
 
 }
@@ -106,7 +107,7 @@ _Bool  (__vlan_hwaccel_do_receive_19) () {
 {
 if (__static_condition_default_21) {
 
-{
+{// L14
 {
 
 
@@ -122,7 +123,7 @@ __static_type_error("type error") ; // L15:L91
 }
 return 0 ;// L16
 }
-}
+}// L17
 
 
 }
@@ -130,7 +131,7 @@ return 0 ;// L16
 }}
 int  (____netif_receive_skb_25) () {
 
-{
+{// L21
 {
 
 
@@ -139,7 +140,7 @@ if (__static_condition_default_16) {
 if (  __nondet_14 ( ) )// L22
 {
 
-{
+{// L23
 {
 
 
@@ -151,14 +152,14 @@ if (__static_condition_default_27) {
  __vlan_hwaccel_do_receive_19 ( ) ; // L24
 }
 }
-}
+}// L25
 }
 }
 if (__static_condition_default_17) {
 if (  __nondet_15 ( ) )// L22
 {
 
-{
+{// L23
 {
 
 
@@ -170,18 +171,18 @@ if (__static_condition_default_29) {
  __vlan_hwaccel_do_receive_19 ( ) ; // L24
 }
 }
-}
+}// L25
 }
 }
 return 0 ;// L26
 }
-}
+}// L27
 
 
 }
 int  (__netif_receive_skb_30) () {
 
-{
+{// L30
 {
 
 
@@ -193,13 +194,13 @@ if (__static_condition_default_32) {
 return  ____netif_receive_skb_25 ( ) ;// L34
 }
 }
-}
+}// L36
 
 
 }
 int  (__main_33) (void  ) {
 
-{
+{// L39
 {
 
 
@@ -207,7 +208,7 @@ int  (__main_33) (void  ) {
  __netif_receive_skb_30 ( ) ; // L40
 return 0 ;// L41
 }
-}
+}// L42
 
 
 }

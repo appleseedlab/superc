@@ -82,4 +82,8 @@ public class ErrorT extends Type {
   public String printType() {
     return "<error>";
   }
+
+    public void printType(TypeString t) {
+    t.addToFront("<error>");
+  }
 }

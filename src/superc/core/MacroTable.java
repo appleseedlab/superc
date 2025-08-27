@@ -26,6 +26,10 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 import superc.core.Syntax.LanguageTag;
 import superc.core.Syntax.Layout;
 import superc.core.Syntax.Language;
@@ -75,6 +79,11 @@ public class MacroTable {
   /** The restricted prefix. */
   private String prefix = null;
 
+  private boolean enableRestrictWhitelist = false;
+  
+  private List<String> restrictWhitelist = null;
+
+  
   /** Make a new empty macro table */
   public MacroTable(TokenCreator tokenCreator) {
     this.tokenCreator = tokenCreator;
@@ -133,6 +142,38 @@ public class MacroTable {
   public String getRestrictPrefix() {
     return prefix;
   }
+
+    /** 
+   * Restrict free macros to the given whitelist.
+   *
+   * @param File with whitelisted macros
+   */
+  public void restrictWhitelist(String whitelistFile) {
+    if (null == whitelistFile) {
+      enableRestrictWhitelist = false;
+      this.restrictWhitelist = null;
+    } else {
+      enableRestrictWhitelist = true;
+      this.restrictWhitelist = new LinkedList<String>();
+      try {
+        BufferedReader reader = new BufferedReader(new FileReader(whitelistFile));
+        String line = reader.readLine();
+        while (line != null) {
+          this.restrictWhitelist.add(line);
+          line = reader.readLine();
+        }
+      } catch (IOException e) {
+        System.err.println("Whitelist unable to be read");
+        enableRestrictWhitelist = false;
+        this.restrictWhitelist = null;
+      }
+    }
+  }
+
+  public boolean whitelisted(String param) {
+    return this.restrictWhitelist.contains(param);
+  }
+
 
   /** Define a macro under a given presenceCondition.  This function will
    * ensure that all conditions are disjoint and that there are no more
@@ -212,7 +253,10 @@ public class MacroTable {
         PresenceCondition negation;
         
         negation = presenceCondition.not();
-        if (restrictPrefix && !name.startsWith(prefix)) {
+        if (enableRestrictWhitelist && ! whitelisted(name)) {
+          // Assume the macro is undefined.
+          defs.add(new Entry(Macro.undefined, negation));
+        } else if (restrictPrefix && !name.startsWith(prefix)) {
           // Assume the macro is undefined.
           defs.add(new Entry(Macro.undefined, negation));
         } else {

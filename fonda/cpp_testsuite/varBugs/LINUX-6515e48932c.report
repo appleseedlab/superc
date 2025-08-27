@@ -1,0 +1,9 @@
+LINUX 6515e48932c.c
+Macros:
+	defined
+	CONFIG_MACH_OMAP_H4
+[-Udefined -UCONFIG_MACH_OMAP_H4 ]
+[-Ddefined=1 -UCONFIG_MACH_OMAP_H4 ]
+[-Udefined -DCONFIG_MACH_OMAP_H4=1 ]
+[-Ddefined=1 -DCONFIG_MACH_OMAP_H4=1 ]
+File Failed

@@ -1,0 +1,43 @@
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+extern void __static_parse_error(char *msg);
+extern void __static_type_error(char *msg);
+extern void __static_renaming(char *renaming, char *original);
+extern void __static_condition_renaming(char *expression, char *renaming);
+
+void __static_initializer_default();
+
+void __static_initializer_default() {
+__static_renaming("__asn1_compare_dn_2", "asn1_compare_dn");
+
+
+};
+
+int  (__asn1_compare_dn_2) (char  * const  (__dn1_0)[], const char  (* const  __dn2_1)[]);// L1
+int  (____asn1_compare_dn_2_5) (char  * const  (__dn1_3)[], const char  (* const  __dn2_4)[]) //M:L2:L2
+{
+
+{// L2
+{
+
+
+
+return 1 ;// L2
+}
+}// L2
+
+
+}
+
+int  __asn1_compare_dn_2 ( char  * const __dn1_0[] , const  char  (* const__dn2_1)[] ) {
+if (1) { return ____asn1_compare_dn_2_5(__dn1_0, __dn2_1); }
+}
+int main(int argc, char **argv) {
+__static_initializer_default();
+if (1) {
+__static_type_error("main function undefined");
+}
+return 0; }

@@ -96,5 +96,8 @@ public abstract class Parameter extends Type {
     return binding.printType();
   }
 
-
+  public void printType(TypeString t) {
+    binding.printType(t);
+  }
+  
 }

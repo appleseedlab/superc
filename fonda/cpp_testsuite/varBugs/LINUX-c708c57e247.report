@@ -1,0 +1,5 @@
+LINUX c708c57e247.c
+Macros:
+	CONFIG_S390_PRNG
+[-UCONFIG_S390_PRNG ]
+File Failed

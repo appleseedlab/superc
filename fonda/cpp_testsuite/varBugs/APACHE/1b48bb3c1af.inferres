@@ -1,0 +1,14 @@
+
+APACHE/1b48bb3c1af.c:14: error: Uninitialized Value
+  `rmm_lock` is read without initialization.
+  12. 
+  13.   #ifdef APR_HAS_SHARED_MEMORY
+  14.   apr_rmm_init(rmm_lock); // ERROR: rmm_lock uninitialized
+                     ^
+  15.   #endif
+  16. }
+
+
+Found 1 issue
+                      Issue Type(ISSUED_TYPE_ID): #
+  Uninitialized Value(PULSE_UNINITIALIZED_VALUE): 1

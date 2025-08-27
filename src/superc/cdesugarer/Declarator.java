@@ -12,6 +12,9 @@ import xtc.type.PointerT;
 import xtc.type.ArrayT;
 import xtc.type.FunctionT;
 import xtc.type.VariableT;
+import xtc.type.StructT;
+import superc.core.PresenceConditionManager.PresenceCondition;
+import superc.cdesugarer.Multiverse.Element;
 
 /**
  * The superclass of all C declarator constructs.
@@ -104,6 +107,12 @@ abstract class Declarator {
   public String toString(int len) {
       return "ERROR: incompatible array length specifier";
     }
+  
+  public Declarator switchForwardRef(List<Type> oldParams, PresenceCondition cond, CContext scope) {
+    System.err.println("Error: tried to switch forward reference parrams for non-function declarator");
+    System.exit(1);
+    return this;
+  }
   
   public abstract String printType();
   /**
@@ -299,6 +308,10 @@ abstract class Declarator {
         return "*";
       return String.format("* (%s)", inner);  // preserve order of operations
     }
+
+    public Declarator switchForwardRef(List<Type> oldParams, PresenceCondition cond, CContext scope) {
+      return new PointerDeclarator(declarator.switchForwardRef(oldParams,cond,scope));
+    }
   }
 
   /**
@@ -331,11 +344,10 @@ abstract class Declarator {
     }
 
     public Type getType(Type type) {
-      System.err.println("TODO: check correctness of qualified pointer declarator type");
+      Type pointed = new PointerT(type);
       TypeSpecifier newts = new TypeSpecifier(qualifiers);
-      newts.setType(type);
-      Type qualifiedtype = newts.getType();
-      return declarator.getType(new PointerT(qualifiedtype));
+      newts.setType(pointed);
+      return declarator.getType(newts.getType());
     }
 
     public boolean hasTypeError() {
@@ -432,12 +444,12 @@ abstract class Declarator {
     }
 
     public Type getType(Type type) {
+      Type pointed = new PointerT(type);
       TypeSpecifier newts = new TypeSpecifier(qualifiers);
-      newts.setType(type);
-      Type qualifiedtype = newts.getType();
-      return new PointerT(qualifiedtype);
+      newts.setType(pointed);
+      return newts.getType();
     }
-
+    
     public boolean hasTypeError() {
       return qualifiers.getType().isError();
     }
@@ -497,18 +509,24 @@ abstract class Declarator {
     public boolean isArrayDeclarator() { return true; }
 
     public String toString() {
-      System.err.println("WARNING: do we need parentheses?");
-      return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString());
+      if (declarator.isEmptyDeclarator()) {
+        return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString());
+      }
+      return String.format("(%s)%s", declarator.toString(), arrayabstractdeclarator.toString());
     }
 
     public String toString(int len) {
-      System.err.println("WARNING: do we need parentheses?");
-      return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString(len));
+      if (declarator.isEmptyDeclarator()) {
+        return String.format("%s%s", declarator.toString(), arrayabstractdeclarator.toString(len));
+      }
+      return String.format("(%s)%s", declarator.toString(), arrayabstractdeclarator.toString(len));
     }
 
     public String printType() {
-      System.err.println("WARNING: do we need parentheses?");
-      return String.format("%s%s", declarator.printType(), arrayabstractdeclarator.printType());
+      if (declarator.isEmptyDeclarator() || declarator.isSimpleDeclarator()) {
+        return String.format("%s%s", declarator.printType(), arrayabstractdeclarator.printType());
+      }
+      return String.format("(%s)%s", declarator.printType(), arrayabstractdeclarator.printType());
     }
     public boolean isFlexible() {
       return arrayabstractdeclarator.isFlexible();
@@ -555,7 +573,7 @@ abstract class Declarator {
       System.err.println("TODO: need to handle the expression to see if the array has a variable size of not");
       for (String expression : expressions) {
         if (expression != "") {
-          arrayType = new ArrayT(arrayType,1);
+          arrayType = new ArrayT(arrayType,expression);
         } else {
           arrayType = new ArrayT(arrayType);
         }
@@ -700,6 +718,9 @@ abstract class Declarator {
     }
     public boolean isFlexible() {
       return declarator.isFlexible();
+    } 
+    public Declarator switchForwardRef(List<Type> oldParams, PresenceCondition cond, CContext scope) {
+      return new FunctionDeclarator(declarator,parameters.revertForwardRefs(oldParams,cond,scope));
     }
   }
 
@@ -780,6 +801,43 @@ abstract class Declarator {
       }
       sb.append(")");
       return sb.toString();
+    }
+
+    public ParameterListDeclarator revertForwardRefs(List<Type> oldParams,PresenceCondition cond, CContext scope) {
+      if (oldParams.size() != parameters.size()) {
+        System.err.println("Error bad params given when referting forward references");
+        System.exit(1);
+      }
+      List<Declaration> newDecs = new LinkedList<Declaration>();
+      for (int i = 0; i < oldParams.size(); ++i) {
+        Type ot = ((VariableT)oldParams.get(i)).getType();
+        while (ot.isPointer()) {
+          ot = ((PointerT)ot).getType();
+        }
+        if (ot.isStruct() && ((StructT)ot).getName().startsWith("__forward_tag_reference_")) {
+          String originalTag = scope.getForwardTagReferenceAnyScope(((StructT)ot).getName());
+          Multiverse<SymbolTable.Entry<Type>> originalTagEntries
+            = scope.getInAnyScope(CContext.toTagName(originalTag), cond);
+          List<String> names = new LinkedList<String>();
+          for (Element<SymbolTable.Entry<Type>> e : originalTagEntries) {
+            names.add(((StructT)e.getData().getValue()).getName());
+          }
+          if (!parameters.get(i).hasName()) {
+            System.err.println("error: parameter has no name");
+            System.exit(1);
+          }
+          String renamed = parameters.get(i).getName();
+          TypeSpecifier newType = parameters.get(i).getTypeSpec().revertForwardRefs(names,((StructT)ot).getName(),renamed);
+          scope = scope.reenterScope(cond);
+          scope.getSymbolTable().replaceType(renamed,oldParams.get(i).revertForwardRef(names,((StructT)ot).getName(),renamed),cond);
+          scope = scope.exitReentrantScope(cond);
+          newDecs.add(new Declaration(newType,parameters.get(i).getDeclarator()));
+        } else {
+          newDecs.add(parameters.get(i));
+        }
+      }
+      ParameterListDeclarator p = new ParameterListDeclarator(newDecs, varargs);
+      return p;
     }
   }
 

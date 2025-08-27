@@ -204,7 +204,7 @@ public class EnumT extends WrappedT implements Tagged {
   public boolean equals(Object o) {
     if (! (o instanceof Type)) return false;
     Type t = (Type)o;
-    return t.hasTagged() && (nonce == t.toTagged().getNonce());
+    return t.isEnum() && t.toEnum().getName().equals(name);
   }
 
   public void write(Appendable out) throws IOException {
@@ -216,4 +216,7 @@ public class EnumT extends WrappedT implements Tagged {
     return "enum " + name;
   }
 
+    public void printType(TypeString t) {
+    t.setCore("enum " + name);
+  }
 }

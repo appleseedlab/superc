@@ -407,6 +407,10 @@ public abstract class Syntax extends xtc.tree.Token {
       return new Text<Tag>(this);
     }
 
+    public Text<Tag> replaceText(String newText) {
+      return new Text<Tag>(tag(),newText);
+    }
+
     public String getTokenText() {
       return text;
     }

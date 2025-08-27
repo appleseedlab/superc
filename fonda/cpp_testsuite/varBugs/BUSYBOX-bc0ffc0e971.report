@@ -1,0 +1,9 @@
+BUSYBOX bc0ffc0e971.c
+Macros:
+	ENABLE_FEATURE_CLEAN_UP
+[-UENABLE_FEATURE_CLEAN_UP ]
+infer :: 21 :: Line:40
+	Memory Leak
+infer :: 22 :: Line:40
+	Null Dereference
+File Failed

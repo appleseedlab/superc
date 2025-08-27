@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -26,7 +27,7 @@ void  (__ext2fs_open2_2) (void  ) {
 {
 if (__static_condition_default_3) {
 
-{
+{// L3
 {
 
 
@@ -34,14 +35,14 @@ if (__static_condition_default_3) {
 char  * (__gdp_0);// L4
 
 }
-}
+}// L13
 
 
 }
 
 if (__static_condition_default_4) {
 
-{
+{// L3
 {
 
 
@@ -53,18 +54,18 @@ char  * (__gdp_0);// L4
  for ( ;  __j_1  < 10 ;  __j_1  ++ ) // L8
 {
 
-{
+{// L9
 {
 
 
 
 __static_type_error("type error : no valid expression"); // L10
 }
+}// L11
 }
 }
 }
-}
-}
+}// L13
 
 
 }
@@ -72,20 +73,20 @@ __static_type_error("type error : no valid expression"); // L10
 }}
 void  (__ext2fs_open_5) (void  ) {
 
-{
+{// L16
 {
 
 
 
  __ext2fs_open2_2 ( ) ; // L17
 }
-}
+}// L18
 
 
 }
 int  (__main_8) (int  __argc_6, char  * (* (__argv_7))) {
 
-{
+{// L21
 {
 
 
@@ -93,7 +94,7 @@ int  (__main_8) (int  __argc_6, char  * (* (__argv_7))) {
  __ext2fs_open_5 ( ) ; // L22
 return 0 ;// L23
 }
-}
+}// L24
 
 
 }

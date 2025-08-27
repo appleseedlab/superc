@@ -1,0 +1,7 @@
+BUSYBOX eef2317b9f5.c
+Macros:
+	CONFIG_FEATURE_CLEAN_UP
+[-UCONFIG_FEATURE_CLEAN_UP ]
+infer :: 12 :: Line:26
+	Memory Leak
+File Failed

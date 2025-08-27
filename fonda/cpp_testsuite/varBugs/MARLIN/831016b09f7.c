@@ -7,7 +7,6 @@ void lcd_setstatus(const char* message, const bool persist) {};
 void lcd_setstatus(const char* message) {};
 // more functions
 #endif
-#endif
 
 void getCode()
 {

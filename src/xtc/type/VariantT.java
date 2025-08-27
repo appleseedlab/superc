@@ -274,6 +274,10 @@ public class VariantT extends DerivedT {
     }
   }
 
+  public void printType(TypeString t) {
+    t.addToFront(qname);
+  }
+  
   public String printType() {
     return qname;
   }

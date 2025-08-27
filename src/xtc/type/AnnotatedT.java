@@ -19,6 +19,8 @@
 package xtc.type;
 
 import java.io.IOException;
+import xtc.tree.Attribute;
+import xtc.Constants;
 
 /**
  * An annotated type.  This pseudo-type is useful for adding
@@ -64,14 +66,38 @@ public class AnnotatedT extends WrappedT {
     return this;
   }
 
+  public boolean sameAnnotations(Type other) {
+    if (!other.isAnnotated()) {
+      return false;
+    }
+    AnnotatedT oa = other.toAnnotated();
+    if (attributes.size() != oa.attributes.size()) {
+      return false;
+    }
+    for (Attribute a : attributes) {
+      if (! oa.attributes.contains(a)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public void write(Appendable out) throws IOException {
-    out.append("annotated(");
+    out.append("annotated(" + attributes);
     getType().write(out);
     out.append(')');
   }
 
-  public String printType() {
-    return getType().printType();
+  
+  public void printType(TypeString t ) {
+    if (attributes.contains(Constants.ATT_CONSTANT)) {
+      t.addAttribute("const",getType());
+    }
+    if (getType().isPointer()) {
+      getType().toPointer().getType().printType(t);
+    } else {
+      getType().printType(t);
+    }
   }
 
 }

@@ -1,0 +1,9 @@
+APACHE 35ae2e259e4.c
+Macros:
+	HAVE_ECC
+	defined
+[-UHAVE_ECC -Udefined ]
+[-DHAVE_ECC=1 -Udefined ]
+[-UHAVE_ECC -Ddefined=1 ]
+[-DHAVE_ECC=1 -Ddefined=1 ]
+File Failed

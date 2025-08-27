@@ -236,22 +236,9 @@ public class TupleT extends DerivedT {
     out.append(')');
   }
 
-  public String printType() {
-    String r = "";
-    if (null != qname) {
-      r += qname;
-    }
-    r += "(";
-    if (types == null) {
-      r+= "...";
-    } else {
-      for (Iterator<Type> iter = types.iterator(); iter.hasNext(); ) {
-        r += iter.next().printType();
-        if (iter.hasNext()) r+=", ";
-      }
-    }
-    r += ")";
-    return r;
+  public void printType(TypeString t) {
+    //dummy for non C type 
   }
 
+  
 }

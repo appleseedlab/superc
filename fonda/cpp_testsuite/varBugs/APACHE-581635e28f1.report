@@ -1,0 +1,5 @@
+APACHE 581635e28f1.c
+Macros:
+	APR_HAVE_IPV6
+[-UAPR_HAVE_IPV6 ]
+File Failed

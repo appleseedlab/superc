@@ -1,0 +1,5 @@
+APACHE 1f46088b38d.c
+Macros:
+	SIGPIPE
+[-USIGPIPE ]
+File Failed

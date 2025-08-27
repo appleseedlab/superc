@@ -460,42 +460,26 @@ public class SymbolTable<T> implements Iterable<String> {
     return map.keySet().iterator();
   }
 
-  // private static long varcount = 0;
-  // private final static char[] charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
-  // private final static Random random = new Random();
-  // private final static int RAND_SIZE = 5;
-
-  // /**
-  //  * Produce a random string of a given size.
-  //  *
-  //  * @returns The random string.
-  //  */
-  // protected String randomString(int string_size) {
-  //   StringBuilder randomstring = new StringBuilder();
-  //   for (int i = 0; i < string_size; i++) {
-  //     randomstring.append(charset[random.nextInt(charset.length)]);
-  //   }
-  //   return randomstring.toString();
-  // }
-
-  // /**
-  //  * Mangle the given identifier to avoid naming clashes when symbols
-  //  * are multiply-declared.
-  //  */
-  // protected String mangleRenaming(String prefix, String ident) {
-  //   // don't want to exceed c identifier length limit (31)
-  //   if (ident.length() > 22) {
-  //     // shorten ident to be at max, 22 chars
-  //     StringBuilder sb = new StringBuilder(ident);
-  //     sb = sb.delete(23, ident.length());
-  //     ident = sb.toString();
-  //   }
-    
-  //   // return String.format("_%s%d_%s", prefix, varcount++, ident);
-  //   // NOTE: when doing regression testing, uncomment the line above, and comment-out the line below
-  //   return String.format("_%s%d%s_%s", prefix, varcount++, randomString(RAND_SIZE), ident);
-  // }
-
+  public void replaceType(String renamed, T newValue, PresenceCondition cond) {
+    String originalName = renamed;
+    while (originalName.charAt(originalName.length()-1) >= '0' && originalName.charAt(originalName.length()-1) <= '9') {
+      originalName = originalName.substring(0,originalName.length()-1);
+    }
+    originalName = originalName.substring(2,originalName.length()-1);
+    Multiverse<Entry<T>> values = map.get(originalName);
+    Multiverse<Entry<T>> onlyDeclared = values.filter(cond);
+    for (Element<Entry<T>> e : onlyDeclared) {
+      if (!e.getData().isDeclared()) {
+        System.err.println("Error: trying to redefine type for erroneous or undeclared entry");
+        System.exit(1);
+      }
+    }
+    onlyDeclared.destruct();
+    Multiverse<Entry<T>> newmv = values.filter(cond.not());
+    newmv.add(new Declared(newValue),cond);
+    map.replace(originalName,newmv);
+  }
+  
   /**
    * returns a list of all anonymous ids that exist in the
    * symbol table.

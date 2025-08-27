@@ -1,0 +1,24 @@
+
+BUSYBOX/bc0ffc0e971.c:40: error: Memory Leak
+  Memory dynamically allocated by `malloc`, indirectly via call to `prepend_new_eth_table()` on line 40 is not freed after the last access at line 40, column 3.
+  38.   ethtable_t *ch;
+  39. 
+  40.   prepend_new_eth_table(&clist, argv[0]);
+        ^
+  41. 
+  42.   #ifdef ENABLE_FEATURE_CLEAN_UP
+
+BUSYBOX/bc0ffc0e971.c:40: error: Null Dereference
+  The call to `prepend_new_eth_table` may trigger the following issue: `ch` could be null (from the call to `prepend_new_eth_table()` on line 29) and is dereferenced in call to `prepend_new_eth_table()`.
+  38.   ethtable_t *ch;
+  39. 
+  40.   prepend_new_eth_table(&clist, argv[0]);
+        ^
+  41. 
+  42.   #ifdef ENABLE_FEATURE_CLEAN_UP
+
+
+Found 2 issues
+             Issue Type(ISSUED_TYPE_ID): #
+  Null Dereference(NULLPTR_DEREFERENCE): 1
+             Memory Leak(MEMORY_LEAK_C): 1

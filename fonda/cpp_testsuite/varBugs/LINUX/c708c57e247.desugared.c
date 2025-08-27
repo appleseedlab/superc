@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -7,9 +8,9 @@ extern void __static_condition_renaming(char *expression, char *renaming);
 
 void __static_initializer_default();
 
-extern const bool __static_condition_default_12;
 extern const bool __static_condition_default_6;
 extern const bool __static_condition_default_11;
+extern const bool __static_condition_default_12;
 void __static_initializer_default() {
 __static_renaming("____u64_0", "__u64");
 __static_renaming("__parm_block_1", "parm_block");
@@ -32,7 +33,7 @@ void  (__prng_seed_5) (int  __nbytes_2) {
 
 if (__static_condition_default_6) {
 
-{
+{// L10
 {
 
 
@@ -66,7 +67,7 @@ return  ;// L15
 while (  __nbytes_2  >= 8 )// L17
 {
 
-{
+{// L17
 {
 
 
@@ -75,10 +76,10 @@ while (  __nbytes_2  >= 8 )// L17
  __i_4  += 8 ; // L19
  __nbytes_2  -= 8 ; // L20
 }
+}// L21
 }
 }
-}
-}
+}// L22
 
 
 }
@@ -87,14 +88,14 @@ int  (__main_9) (int  __argc_7, char  * (__argv_8[])) {
 
 if (__static_condition_default_11) {
 
-{
+{// L26
 {
 
 
 
 return 0 ;// L30
 }
-}
+}// L31
 
 
 }
@@ -103,7 +104,7 @@ int  (__main_10) (int  __argc_7, char  * (__argv_8[])) {
 
 if (__static_condition_default_12) {
 
-{
+{// L26
 {
 
 
@@ -111,7 +112,7 @@ if (__static_condition_default_12) {
  __prng_seed_5  (16) ; // L28
 return 0 ;// L30
 }
-}
+}// L31
 
 
 }

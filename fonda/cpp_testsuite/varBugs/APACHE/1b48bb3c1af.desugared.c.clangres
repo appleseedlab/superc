@@ -1,0 +1,59 @@
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:1:11: error: use of undeclared identifier 'DEF___need___FILE'
+int varis[DEF___need___FILE];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:2:11: error: use of undeclared identifier 'DEF__BITS_TYPESIZES_H'
+int varis[DEF__BITS_TYPESIZES_H];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:3:11: error: use of undeclared identifier 'DEF_____mbstate_t_defined'
+int varis[DEF_____mbstate_t_defined];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:4:11: error: use of undeclared identifier 'DEF__IO_MTSAFE_IO'
+int varis[DEF__IO_MTSAFE_IO];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:5:11: error: use of undeclared identifier 'DEF__IO_USE_OLD_IO_FILE'
+int varis[DEF__IO_USE_OLD_IO_FILE];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:6:11: error: use of undeclared identifier 'DEF___GNUC_VA_LIST'
+int varis[DEF___GNUC_VA_LIST];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:7:11: error: use of undeclared identifier 'DEF__ANSI_STDARG_H_'
+int varis[DEF__ANSI_STDARG_H_];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:8:11: error: use of undeclared identifier 'DEF___STRICT_ANSI__'
+int varis[DEF___STRICT_ANSI__];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:9:11: error: use of undeclared identifier 'DEF__VA_LIST_DEFINED'
+int varis[DEF__VA_LIST_DEFINED];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:10:11: error: use of undeclared identifier 'DEF__FILE_OFFSET_BITS'
+int varis[DEF__FILE_OFFSET_BITS];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:11:11: error: use of undeclared identifier 'DEF___off_t_defined'
+int varis[DEF___off_t_defined];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:12:11: error: use of undeclared identifier 'USE__FILE_OFFSET_BITS'
+int varis[USE__FILE_OFFSET_BITS];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:13:11: error: use of undeclared identifier 'DEF___ssize_t_defined'
+int varis[DEF___ssize_t_defined];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:14:11: error: use of undeclared identifier 'DEF__FORTIFY_SOURCE'
+int varis[DEF__FORTIFY_SOURCE];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:15:11: error: use of undeclared identifier 'USE__FORTIFY_SOURCE'
+int varis[USE__FORTIFY_SOURCE];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:16:11: error: use of undeclared identifier 'DEF___OPTIMIZE__'
+int varis[DEF___OPTIMIZE__];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:17:11: error: use of undeclared identifier 'USE___OPTIMIZE__'
+int varis[USE___OPTIMIZE__];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:18:11: error: use of undeclared identifier 'DEF___FILE_defined'
+int varis[DEF___FILE_defined];
+          ^
+/home/kisamefishfry/Documents/xtc-dev/fonda/cpp_testsuite/varBugs/APACHE/1b48bb3c1af.desugared.c.c:19:11: error: use of undeclared identifier 'DEF___USE_EXTERN_INLINES'
+int varis[DEF___USE_EXTERN_INLINES];
+          ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.

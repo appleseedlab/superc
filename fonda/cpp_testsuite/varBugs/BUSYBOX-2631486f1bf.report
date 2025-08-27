@@ -1,0 +1,25 @@
+BUSYBOX 2631486f1bf.c
+Macros:
+	CONFIG_FEATURE_LS_RECURSIVE
+	CONFIG_FEATURE_LS_SORTFILES
+[-UCONFIG_FEATURE_LS_RECURSIVE -UCONFIG_FEATURE_LS_SORTFILES ]
+infer :: 13 :: Line:66
+	Null Dereference
+infer :: 14 :: Line:67
+	Uninitialized Value
+[-DCONFIG_FEATURE_LS_RECURSIVE=1 -UCONFIG_FEATURE_LS_SORTFILES ]
+infer :: 15 :: Line:66
+	Null Dereference
+infer :: 16 :: Line:67
+	Uninitialized Value
+[-UCONFIG_FEATURE_LS_RECURSIVE -DCONFIG_FEATURE_LS_SORTFILES=1 ]
+infer :: 17 :: Line:66
+	Null Dereference
+infer :: 18 :: Line:67
+	Uninitialized Value
+[-DCONFIG_FEATURE_LS_RECURSIVE=1 -DCONFIG_FEATURE_LS_SORTFILES=1 ]
+infer :: 19 :: Line:66
+	Null Dereference
+infer :: 20 :: Line:67
+	Uninitialized Value
+File Failed

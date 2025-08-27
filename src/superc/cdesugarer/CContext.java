@@ -108,6 +108,8 @@ public class CContext implements ParsingContext {
    */
   protected Map<String, SymbolTable<Declaration>> taglookasidetable;
 
+  protected static Map<String,Multiverse<String>> prototypeMultiplex = new HashMap<String,Multiverse<String>>();
+
   /**
    * The forward tag reference accounts for forward references of
    * struct/union, when in a single pass, we won't know yet how many
@@ -639,7 +641,7 @@ public class CContext implements ParsingContext {
     } else {
       // symtab.addAll(scope.symtab);
       oldsymtab.copyBools(scope.oldsymtab);
-
+      
       if (null != parent) {
         return parent.merge(scope.parent);
 
@@ -839,9 +841,9 @@ public class CContext implements ParsingContext {
       scope.symtab.delRef();
       scope.symtab = null;
       if (scope.taglookasidetable != null) {
-	  for (SymbolTable<Declaration> elem : scope.taglookasidetable.values()) {
-	      elem.delRef();
-	  }
+        for (SymbolTable<Declaration> elem : scope.taglookasidetable.values()) {
+          elem.delRef();
+        }
       }
       scope.taglookasidetable = null;
       scope.forwardtagrefs = null;
@@ -948,7 +950,6 @@ public class CContext implements ParsingContext {
       scope.oldsymtab = null;
       scope = scope.parent;
     }
-
     return scope;
   }
 
@@ -1314,6 +1315,22 @@ public class CContext implements ParsingContext {
       return res;
   }
  
+
+  public static void addMultiplex(String original, String rename, PresenceCondition cond) {
+    Multiverse<String> plexes;
+    if(prototypeMultiplex.containsKey(original)) {
+      plexes = prototypeMultiplex.get(original).filter(cond.not());
+      plexes.add(rename,cond);
+      
+    } else {
+      plexes = new Multiverse<String>(rename,cond);
+    }
+    prototypeMultiplex.put(original,plexes);   
+  }
+
+  public static Map<String,Multiverse<String>> getMultiplexes() {
+    return prototypeMultiplex;
+  }
   
   /**
    * Add to the declarations to be put at the top of the scope.

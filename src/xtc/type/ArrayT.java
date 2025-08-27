@@ -20,6 +20,7 @@ package xtc.type;
 
 import java.io.IOException;
 import xtc.tree.Attribute;
+import java.util.List;
 
 /**
  * An array type.  An array can either be of fixed or variable length,
@@ -39,6 +40,9 @@ public class ArrayT extends DerivedT {
 
   /** The length. */
   private long length;
+
+  private String lenStr;
+  
   /**
    * Create a new, incomplete array type.
    *
@@ -59,8 +63,9 @@ public class ArrayT extends DerivedT {
     this.type      = type;
     this.varlength = varlength;
     this.length    = -1;
-    for (Attribute a : type.attributes())
-	addAttribute(a);
+    this.lenStr = "";
+    //for (Attribute a : type.attributes())
+    //  addAttribute(a);
   }
 
   /**
@@ -73,10 +78,20 @@ public class ArrayT extends DerivedT {
     this.type      = type;
     this.varlength = false;
     this.length    = length;
-    for (Attribute a : type.attributes())
-	addAttribute(a);
+    this.lenStr = String.valueOf(length);
+    //for (Attribute a : type.attributes())
+    //  addAttribute(a);
   }
 
+  public ArrayT(Type type, String lenStr) {
+    this.type      = type;
+    this.varlength = false;
+    this.length    = -1;
+    this.lenStr = lenStr;
+    //for (Attribute a : type.attributes())
+    //  addAttribute(a);
+  }
+  
   /**
    * Create a new array type.
    *
@@ -90,6 +105,7 @@ public class ArrayT extends DerivedT {
     this.type      = type;
     this.varlength = varlength;
     this.length    = length;
+    this.lenStr = String.valueOf(length);
   }
 
   public Type seal() {
@@ -173,6 +189,7 @@ public class ArrayT extends DerivedT {
   public void setLength(long length) {
     checkNotSealed();
     this.length = length;
+    lenStr = String.valueOf(length);
   }
 
   public int hashCode() {
@@ -199,55 +216,20 @@ public class ArrayT extends DerivedT {
       out.append(", *");
     } else if (-1 != length) {
       out.append(", ");
-      out.append(Long.toString(length));
+      out.append(lenStr);
     }
     out.append(')');
   }
-    
-    public boolean innerMostIsFunction() {
-	if (type.resolve().isPointer()) {
-	    return ((PointerT)type.resolve()).innerMostIsFunction();
-	} else if (type.resolve().isArray()) {
-	    return ((ArrayT)type.resolve()).innerMostIsFunction();
 
-	}
-	return type.resolve().isFunction();
-    }
-
-    public String printType(String extra) {
-	String add;
-      if (hasLength()) {
-	  add = "[" + getLength() + "]";
-      } else {
-	  add = "[]";
-      }
-      if (!innerMostIsFunction()) {
-	  return type.printType()+add+extra;
-      } else if (type.resolve().isPointer()) {
-	  return ((PointerT)type.resolve()).printType(add+extra); 
-      } else if (type.resolve().isArray()) {
-	  return ((ArrayT)type.resolve()).printType(add+extra); 
-      } else {
-	  return ((FunctionT)type.resolve()).printType(add+extra);
-      }
-    }
-    
-  public String printType() {
-      String add;
-      if (hasLength()) {
-	  add = "[" + getLength() + "]";
-      } else {
-	  add = "[]";
-      }
-      if (!innerMostIsFunction()) {
-	  return type.printType()+add;
-      } else if (type.resolve().isPointer()) {
-	  return ((PointerT)type.resolve()).printType(add); 
-      } else if (type.resolve().isArray()) {
-	  return ((ArrayT)type.resolve()).printType(add); 
-      } else {
-	  return ((FunctionT)type.resolve()).printType(add);
-      }
+  public void printType(TypeString t ) {
+    t.addArray(lenStr,getType());
+    getType().printType(t);
   }
+
+  
+  public Type revertForwardRef(List<String> references, String forwardRef, String rename) {
+    return new ArrayT(this,type.revertForwardRef(references, forwardRef, rename),varlength,length);
+  }
+
   
 }

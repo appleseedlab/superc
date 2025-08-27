@@ -1,0 +1,5 @@
+LINUX 218ad12f42e.c
+Macros:
+	CONFIG_NUMA
+[-UCONFIG_NUMA ]
+File Failed

@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern void __static_parse_error(char *msg);
 extern void __static_type_error(char *msg);
@@ -21,33 +22,33 @@ __static_condition_renaming("__static_condition_default_4", "(defined CONFIG_ARM
 
 static int  (__do_page_fault_0) () {
 
-{
+{// L2
 {
 
 
 
 return 0 ;// L3
 }
-}
+}// L4
 
 
 }
 static int  (__do_sect_fault_1) () {
 
-{
+{// L7
 {
 
 
 
 return 0 ;// L8
 }
-}
+}// L9
 
 
 }
 int  (__main_2) () {
 
-{
+{// L12
 {
 
 
@@ -63,7 +64,7 @@ if (__static_condition_default_3) {
 }
 return 0 ;// L19
 }
-}
+}// L20
 
 
 }
