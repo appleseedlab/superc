@@ -10499,7 +10499,14 @@ public static class LineNumbers {
     int latestLine = line2.getLocation().line;
     String file = java.util.Objects.equals(line1.getLocation().file, line2.getLocation().file)
             ? line1.getLocation().file : UNKNOWN_FILE;
-    this.rangesByFile.put(file, List.of(new Range(earliestLine, latestLine)));
+    if (earliestLine <= latestLine) {
+      this.rangesByFile.put(file, List.of(new Range(earliestLine, latestLine)));
+    } else if (java.util.Objects.equals(line1.getLocation().file, line2.getLocation().file)) {
+      this.rangesByFile.put(file, List.of(new Range(latestLine, earliestLine)));
+    } else {
+      this.rangesByFile.put(line1.getLocation().file, List.of(new Range(earliestLine, earliestLine)));
+      this.rangesByFile.put(line2.getLocation().file, List.of(new Range(latestLine, latestLine)));
+    }
   }
 
   public LineNumbers(String file, List<Range> ranges) {
